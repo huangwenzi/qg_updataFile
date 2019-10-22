@@ -12,4 +12,4 @@ port = 5002
 s.connect((host, port))
 s.setblocking(False)
 
-s.send(b"e w0 print(1)\r\n")
+s.send("e w0 print(2)\r\n".encode("utf8"))

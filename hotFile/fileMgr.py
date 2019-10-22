@@ -8,15 +8,22 @@ class FileMgr():
     source_path = ""
     # 跳过检查的文件
     pass_file = []
+    # 跳过检查的目录
+    pass_dir = []
     
     # 初始化
-    def __init__(self, source_path, pass_file):
+    def __init__(self, source_path, pass_file, pass_dir):
         self.source_path = source_path
         # 跳过的文件
         tmp_pass_file = []
         for tmp_file in pass_file:
             tmp_pass_file.append(self.unite_path(tmp_file))
         self.pass_file = tmp_pass_file
+        # 跳过的目录
+        tmp_pass_dir = []
+        for tmp_dir in pass_dir:
+            tmp_pass_dir.append(self.unite_path(tmp_dir))
+        self.pass_dir = tmp_pass_dir
     
     # 统一路径格式
     def unite_path(self, tmp_path):
@@ -32,6 +39,15 @@ class FileMgr():
                 # 是否需要跳过
                 if tmp_file_path in self.pass_file:
                     continue
+                # 跳过目录
+                ispass = False
+                for tmp_dir in self.pass_dir:
+                    if tmp_dir in tmp_file_path:
+                        ispass = True
+                        break
+                if ispass:
+                    continue
+
                 if os.path.exists(tmp_file_path):
                     file_time[tmp_file_path] = os.stat(tmp_file_path).st_mtime
         return file_time
@@ -79,7 +95,7 @@ class FileMgr():
             # 替换地址
             rep_file = tmp_file.replace(source_path, target_path)
             # 修改文件
-            with open(tmp_file, 'r', encoding='UTF-8') as f_in:
+            with open(tmp_file, 'r', encoding='UTF-8') as f_in:             # 日记居然是gbk编码，坑爹，跳过就好了，日志不同步
                 file_str = f_in.read()
                 # 先判断目录是否存在，不存在就创建
                 idx = rep_file.rfind("\\")

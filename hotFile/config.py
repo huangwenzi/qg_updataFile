@@ -18,16 +18,23 @@
 
 globalCfg = {
     # 源目录
-    "source_path" : "C:\\Users\\hw\\Documents\\GitHub\\qg_updataFile\\new",
+    "source_path" : "E:\\huangwen\\code\\server\\l-src",
     # 目标目录
     "target_path" : [
-        "C:\\Users\\hw\\Documents\\GitHub\\qg_updataFile\\old_1",
-        "C:\\Users\\hw\\Documents\\GitHub\\qg_updataFile\\old_2",
+        "E:\\huangwen\\code\\server_1\\l-src",
+        "E:\\huangwen\\code\\server_cp\\l-src",
     ],
     # 跳过的文件
     "pass_file" : [
-        "C:\\Users\\hw\\Documents\\GitHub\\qg_updataFile\\new\\2.txt",
+        "E:\\huangwen\\code\\server\\l-src\\conf",
+    ],
+    # 跳过的目录
+    "pass_dir" : [
+        "E:\\huangwen\\code\\server\\l-src\\log",
     ],
     # 检查间隔
     "time_interval" : 10,
+    # 需要热更的地址
+    "hot_ip" : "127.0.0.1",
+    "hot_port" : [5000, 5010, 7000],
 }
