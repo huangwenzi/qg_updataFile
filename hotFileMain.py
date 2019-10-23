@@ -45,10 +45,12 @@ while True:
     # end_time = time.time()
     # print("get_add_or_revise_file consume:%f"%(end_time - begin_time))
     # # 打印修改的文件
-    print("revise_file_list:")
-    print(revise_file_list)
-    print("remove_file_list:")
-    print(remove_file_list)
+    # print("revise_file_list:")
+    # print(revise_file_list)
+    # print("remove_file_list:")
+    # print(remove_file_list)
+    # if len(revise_file_list) > 0:
+    #     print(revise_file_list)
 
     
     # 记录耗时
@@ -64,4 +66,6 @@ while True:
     # 发送热更
     netMgr.send_hot_file(revise_file_list)
     end_time = time.time()
-    print("consume:%f"%(end_time - begin_time))
+    if len(revise_file_list) > 0:
+        print(revise_file_list)
+        print("%s consume:%f"%(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), end_time - begin_time))

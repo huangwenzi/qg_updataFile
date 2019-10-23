@@ -95,14 +95,16 @@ class FileMgr():
             # 替换地址
             rep_file = tmp_file.replace(source_path, target_path)
             # 修改文件
-            with open(tmp_file, 'r', encoding='UTF-8') as f_in:             # 日记居然是gbk编码，坑爹，跳过就好了，日志不同步
+            # with open(tmp_file, 'r', encoding='UTF-8') as f_in:             # 日记居然是gbk编码，坑爹，跳过就好了，日志不同步
+            with open(tmp_file, 'rb') as f_in:             # 日记居然是gbk编码，坑爹，跳过就好了，日志不同步
                 file_str = f_in.read()
                 # 先判断目录是否存在，不存在就创建
                 idx = rep_file.rfind("\\")
                 tmp_str = rep_file[:idx]
                 if not os.path.exists(tmp_str):
                     os.makedirs(tmp_str)
-                with open(rep_file, 'w+', encoding='UTF-8') as f_out:
+                # with open(rep_file, 'w+', encoding='UTF-8') as f_out:
+                with open(rep_file, 'wb+') as f_out:
                     f_out.write(file_str)
 
     # 同步删除文件

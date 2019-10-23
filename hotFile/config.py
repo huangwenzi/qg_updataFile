@@ -33,7 +33,7 @@ globalCfg = {
         "E:\\huangwen\\code\\server\\l-src\\log",
     ],
     # 检查间隔
-    "time_interval" : 10,
+    "time_interval" : 5,
     # 需要热更的地址
     "hot_ip" : "127.0.0.1",
     "hot_port" : [5000, 5010, 7000],
