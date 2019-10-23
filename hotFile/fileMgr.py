@@ -1,5 +1,6 @@
 import os
 import time
+import platform
 
 
 # 文件处理
@@ -10,10 +11,17 @@ class FileMgr():
     pass_file = []
     # 跳过检查的目录
     pass_dir = []
+    # 跳过检查的关键字
+    pass_str = []
+    # 操作系统类型
+    sysstr = ""
     
     # 初始化
-    def __init__(self, source_path, pass_file, pass_dir):
+    def __init__(self, source_path, pass_file, pass_dir, pass_str):
         self.source_path = source_path
+        # 操作系统
+        self.sysstr = platform.system()
+        print("sysstr:" + self.sysstr)
         # 跳过的文件
         tmp_pass_file = []
         for tmp_file in pass_file:
@@ -24,10 +32,14 @@ class FileMgr():
         for tmp_dir in pass_dir:
             tmp_pass_dir.append(self.unite_path(tmp_dir))
         self.pass_dir = tmp_pass_dir
+        self.pass_str = pass_str
+        
     
     # 统一路径格式
     def unite_path(self, tmp_path):
-        return tmp_path.replace('/', '\\')
+        if self.sysstr == "Windows" :
+            return tmp_path.replace('/', '\\')
+        return tmp_path
 
     # 获取文件更新时间
     def get_file_update_time(self):
@@ -43,6 +55,13 @@ class FileMgr():
                 ispass = False
                 for tmp_dir in self.pass_dir:
                     if tmp_dir in tmp_file_path:
+                        ispass = True
+                        break
+                if ispass:
+                    continue
+                # 跳过关键字
+                for tmp_str in self.pass_str:
+                    if tmp_str in tmp_file_path:
                         ispass = True
                         break
                 if ispass:

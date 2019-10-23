@@ -32,6 +32,10 @@ globalCfg = {
     "pass_dir" : [
         "E:\\huangwen\\code\\server\\l-src\\log",
     ],
+    # 跳过的关键字
+    "pass_str" : [
+        ".svn",
+    ],
     # 检查间隔
     "time_interval" : 5,
     # 需要热更的地址
