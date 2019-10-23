@@ -23,6 +23,8 @@ class NetMgr():
     
     # 连接进来的服务端
     socket_list = []
+    # 连接失败的服务端
+    fail_list = []
     # 系统类型
     sysstr = ""
 
@@ -33,16 +35,37 @@ class NetMgr():
         self.sysstr = platform.system()
         # 初始化监听的socket
         for tmp_port in port_list:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-            s.connect((ip, tmp_port + 2))
-            s.setblocking(False)
-            tmp_svr = SvrSocket(s, ip, tmp_port)
-            self.socket_list.append(tmp_svr)
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+                s.connect((ip, tmp_port + 2))
+                s.setblocking(False)
+                tmp_svr = SvrSocket(s, ip, tmp_port)
+                self.socket_list.append(tmp_svr)
+            except :
+                self.fail_list.append({
+                    "ip":ip, "tmp_port":tmp_port
+                })
+            
         
 
     # 给客户端发送文件
     # file_list     :   文件列表
     def send_hot_file(self, file_list):
+        # 尝试连接失败的服务器
+        tmp_fail_list = []
+        for tmp_fail in self.fail_list:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+                s.connect((tmp_fail["ip"], tmp_fail["tmp_port"] + 2))
+                s.setblocking(False)
+                tmp_svr = SvrSocket(s, tmp_fail["ip"], tmp_fail["tmp_port"])
+                self.socket_list.append(tmp_svr)
+            except :
+                tmp_fail_list.append({
+                    "ip":tmp_fail["ip"], "tmp_port":tmp_fail["tmp_port"]
+                })
+        self.fail_list = tmp_fail_list
+
         # 循环文件列表
         for tmp_file in file_list:
             # 获取文件名
@@ -65,6 +88,9 @@ class NetMgr():
                         tmp_s.t_socket.send(send_str.encode("utf8"))
                         print("t_socket Reconnect ok")
                     except :
+                        self.fail_list.append({
+                            "ip":tmp_s.t_ip, "tmp_port":tmp_s.t_port
+                        })
                         print("t_socket Reconnect err")
                 
 

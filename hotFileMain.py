@@ -72,10 +72,10 @@ while True:
     # end_time = time.time()
     # print("synchronize_file consume:%f"%(end_time - begin_time))
 
-    # # 屏蔽可以同步文件
-    # # 发送热更
-    # netMgr.send_hot_file(revise_file_list)
-    # end_time = time.time()
-    # if len(revise_file_list) > 0:
-    #     print(revise_file_list)
-    #     print("%s consume:%f"%(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), end_time - begin_time))
+    # 屏蔽可以同步文件
+    # 发送热更
+    netMgr.send_hot_file(revise_file_list)
+    end_time = time.time()
+    if len(revise_file_list) > 0:
+        print(revise_file_list)
+        print("%s consume:%f"%(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), end_time - begin_time))
