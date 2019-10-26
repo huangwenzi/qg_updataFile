@@ -64,7 +64,7 @@ class NetMgr():
     def send_file_to_client(self, file_path, old_path):
         # 先把文件读取到内存
         file_str = ""
-        with open(file_path, 'r', encoding='UTF-8') as f_in:
+        with open(file_path, 'r', encoding='UTF-8', errors='ignore') as f_in:
             file_str = f_in.read()
         file_path = file_path[len(old_path):]
         send_obj = {"file_path":file_path, "file_str":file_str, "type": revise_file}
@@ -77,7 +77,7 @@ class NetMgr():
             print("num:%d"% (num))
             num += 1
             try:
-                tmp_client.send(send_str.encode('utf-8'))
+                tmp_client.send(send_str.encode('utf-8', errors='ignore'))
             except :
                 idx = 0
                 for item in self.client_list:

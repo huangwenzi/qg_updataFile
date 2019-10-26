@@ -19,6 +19,7 @@ globalCfg = {
     # 跳过的关键字
     "pass_str" : [
         ".svn",
+        ".xlsx",
     ],
     # 检查间隔
     "time_interval" : 5,

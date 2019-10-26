@@ -113,6 +113,10 @@ class FileMgr():
         for tmp_file in file_list:
             # 替换地址
             rep_file = tmp_file.replace(source_path, target_path)
+            # 检查文件是否存在
+            if not os.path.exists(tmp_file):
+                print("file notExists, :%s"%(tmp_file))
+                continue
             # 修改文件
             # with open(tmp_file, 'r', encoding='UTF-8') as f_in:             # 日记居然是gbk编码，坑爹，跳过就好了，日志不同步
             with open(tmp_file, 'rb') as f_in:             # 日记居然是gbk编码，坑爹，跳过就好了，日志不同步

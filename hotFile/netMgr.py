@@ -75,7 +75,7 @@ class NetMgr():
             for tmp_s in self.socket_list:
                 # 这里缺少断开的判断
                 try:
-                    tmp_s.t_socket.send(send_str.encode("utf8"))
+                    tmp_s.t_socket.send(send_str.encode("utf8", errors='ignore'))
                 except :
                     print("t_socket err")
                     print("t_socket ip:%s, port:%d"%(tmp_s.t_ip, tmp_s.t_port))
@@ -85,7 +85,7 @@ class NetMgr():
                         s.connect((tmp_s.t_ip, tmp_s.t_port + 2))
                         s.setblocking(False)
                         tmp_s.t_socket = s
-                        tmp_s.t_socket.send(send_str.encode("utf8"))
+                        tmp_s.t_socket.send(send_str.encode("utf8", errors='ignore'))
                         print("t_socket Reconnect ok")
                     except :
                         self.fail_list.append({
