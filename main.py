@@ -1,80 +1,76 @@
 
 import os
 import time
+import lib.file_lib as fileMd
 
 
 # 刷新文件
 # 源目录
-old_path = "updateFile/old"
+src_path = "updateFile/old"
 # 刷新目录
-new_path = "updateFile/new"
+update_path = ["updateFile/new"]
 # 刷新间隔
-time_interval = 1
+time_interval = 5
 
-# 文件类
-class FileObj():
-    file_name = ""
-    dir_name = ""
-    file_path = ""
-    mtime = 0
-    
-    def __init__(self, file_name, dir_name, file_path):
-        self.file_name = file_name
-        self.dir_name = dir_name
-        self.file_path = file_path
-        self.mtime = os.stat(self.file_path).st_mtime
+# 同一路径斜杆
+src_path = fileMd.change_path_of_sys(src_path)
+update_path_1 = []
+for tmp in update_path:
+    update_path_1.append(fileMd.change_path_of_sys(tmp))
+update_path = update_path_1
 
-last_time = 0
+
+
+
+## 初始化源目录数据
+path_begin_idx = len(src_path)
+src_file_map = {}
+for root, dirs, files in os.walk(src_path, topdown=False):
+    for file_name in files:
+        tmp_file_path = os.path.join(root, file_name)
+        ## 获取key
+        file_key = tmp_file_path[path_begin_idx:]
+        src_file_map[file_key] = fileMd.FileObj(file_name, file_key, tmp_file_path)
+            
 while True:
-    # 是否到时间刷新
-    now = time.time()
-    if now < last_time + time_interval:
-        time.sleep(last_time + time_interval - now + 0.1)
-    last_time = now
-
-    # 获取源目录每个表更新的时间
-    old_file_time = {}
-    for root, dirs, files in os.walk(old_path, topdown=False):
-        for name in files:
-            tmp_file_path = os.path.join(root, name)
-            old_file_time[tmp_file_path[len(old_path):]] = FileObj(name, root, tmp_file_path)
-
-    # 获取刷新目录每个表更新的时间
-    new_file_time = {}
-    for root, dirs, files in os.walk(new_path, topdown=False):
-        for name in files:
-            tmp_file_path = os.path.join(root, name)
-            new_file_time[tmp_file_path[len(new_path):]] = FileObj(name, root, tmp_file_path)
-
-    for key in old_file_time:
-        tmp_file = old_file_time[key]
-        old_file_name = tmp_file.file_path
-        new_file_name = old_file_name.replace(old_path, new_path)
-        # 刷新目录文件是否存在
-        # 文件不存在
-        if key not in new_file_time:
-            # 刷新目录文件，目录是否存在
-            new_file_dir = new_file_name[:-len(tmp_file.file_name)]
-            if not os.path.exists(new_file_dir):
-                os.makedirs(new_file_dir)
-            # 拷贝文件
-            with open(new_file_name, 'w', encoding='utf-8', errors='ignore') as fin:
-                pass
-            os_str = ("copy %s %s" % (old_file_name, new_file_name))
-            # 这里要装换，windows不能用'/', 要替换成'\\'
-            os_str = os_str.replace('/', '\\')
-            os.system(os_str)
-            # 修改时间
-            os.utime(new_file_name,(tmp_file.mtime, tmp_file.mtime))
-        # 文件存在
-        else:
-            # 对比时间
-            new_file = new_file_time[key]
-            if tmp_file.mtime > new_file.mtime:
-                os_str = ("copy %s %s" % (old_file_name, new_file_name))
-                os_str = os_str.replace('/', '\\')
-                os.system(os_str)
-                # 修改时间
-                os.utime(new_file_name,(tmp_file.mtime, tmp_file.mtime))
-
-    
+    ## 更新和添加新的文件
+    for root, dirs, files in os.walk(src_path, topdown=False):
+        for file_name in files:
+            tmp_file_path = os.path.join(root, file_name)
+            ## 获取key
+            file_key = tmp_file_path[path_begin_idx:]
+            src_file_map[file_key] = fileMd.FileObj(file_name, file_key, tmp_file_path)
+            
+    # 需要删除的源文件对象
+    need_remove_file = []
+    # 遍历更新目录
+    for son_file_path in update_path:
+        # 遍历文件
+        for file_key in src_file_map:
+            file_obj = src_file_map[file_key]
+            # 更新文件的地址
+            update_file_path = file_obj.file_path.replace(src_path, son_file_path)
+            # 源文件是否还存在
+            if os.path.exists(file_obj.file_path) == False:
+                need_remove_file.append(file_key)
+                # 删除不应存在的文件
+                if os.path.exists(update_file_path):
+                    os.remove(update_file_path)
+                continue
+                
+            # 更新文件是否存在
+            if os.path.exists(update_file_path) == False:
+                fileMd.copy_file(file_obj, update_file_path)
+            else:
+                # 对比时间
+                update_file_time = os.stat(update_file_path).st_mtime
+                if file_obj.mtime != update_file_time:
+                    # 拷贝文件过去，并修改时间
+                    fileMd.copy_file(file_obj, update_file_path)
+        
+    # 删除已经不存在的文件
+    for file_key in need_remove_file:
+        del src_file_map[file_key]
+        
+    ## 间隔
+    time.sleep(time_interval)
