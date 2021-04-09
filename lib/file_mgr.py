@@ -28,6 +28,8 @@ class FileMgr():
         path_begin_idx = len(self.source_path)
         return file_path[path_begin_idx:]
     
+    
+    
     ## 检查函数
     # 文件是否需要过滤
     def check_file_pass(self, file_path):
@@ -36,6 +38,8 @@ class FileMgr():
             if tmp_str in file_path:
                 return True
         return False
+    
+    
         
     ## 修改函数
     # 更新文件数据

@@ -1,81 +1,44 @@
 import os
 import time
 import platform
+import lib.file_mgr as fileMgrMd
+import lib.file_lib as fileLibMd
+import lib.net_mgr as netMgrMd
 
-from hotFile.fileMgr import FileMgr
-from hotFile.netMgr import NetMgr
-sysstr = platform.system()
-G_cfg = None
-if sysstr == "Windows":
-    from hotFile.configWindows import globalCfg as tmpG_cfg
-    G_cfg = tmpG_cfg
-else:
-    from hotFile.configLinux import globalCfg as tmpG_cfg
-    G_cfg = tmpG_cfg
+# 刷新文件
+# 源目录
+src_path = "updateFile/old"
+# 刷新目录
+update_path = ["updateFile/new"]
+# 跳过检查的关键字
+pass_str = ["/log"]
+# 接收端地址
+hot_addr = [["127.0.0.1", 5000]]
+# 刷新间隔
+time_interval = 5
 
+# 同一路径斜杆
+src_path = fileLibMd.change_path_of_sys(src_path)
+update_path_1 = []
+for tmp in update_path:
+    update_path_1.append(fileLibMd.change_path_of_sys(tmp))
+update_path = update_path_1
+
+# 初始化文件管理器
+file_mgr = fileMgrMd.FileMgr(src_path, pass_str)
+# 初始化网络管理器
+net_mgr = netMgrMd.NetMgr(src_path, pass_str)
+# 添加目标地址
+for tmp_addr in hot_addr:
+    net_mgr.add_socket(tmp_addr[0], tmp_addr[1])
+    
 
 # 刷新文件并热更文件
-
-# 文件管理器
-fileMgr = FileMgr(G_cfg["source_path"], G_cfg["pass_file"], G_cfg["pass_dir"], G_cfg["pass_str"])
-# 网络管理器
-netMgr = NetMgr(G_cfg["hot_ip"], G_cfg["hot_port"])
-# 每个文件更新的时间保存
-file_update_time = fileMgr.get_file_update_time()
-# 上次更新的时间
-last_time = 0
-# 更新间隔
-time_interval = G_cfg["time_interval"]
-
-
 while True:
-    # 是否到时间刷新
-    now = time.time()
-    if now < last_time + time_interval:
-        time.sleep(last_time + time_interval - now + 0.1)
-        continue
-    last_time = time.time()
+    remove_list, add_list, update_list = file_mgr.update_file()
+    # 热更只针对更新的文件
+    for tmp_update_file in update_list:
+        tmp_update_file_name = fileLibMd.get_file_name(tmp_update_file)
+        net_mgr.send_all_socket("hot " + tmp_update_file_name)
 
-    # 记录耗时
-    begin_time = time.time()
-    # 修改过的文件列表
-    revise_file_list = []
-    # 删除的文件列表
-    remove_file_list = []
 
-    # # # 获取更新时间
-    # new_time = fileMgr.get_file_update_time()
-    # print(new_time)
-    
-    # 获取修改的文件时间，包含更新file_update_time
-    revise_file_list = fileMgr.get_add_or_revise_file(file_update_time)
-    remove_file_list = fileMgr.get_remove_file(file_update_time)
-
-    # end_time = time.time()
-    # print("get_add_or_revise_file consume:%f"%(end_time - begin_time))
-    # # 打印修改的文件
-    # print("revise_file_list:")
-    # print(revise_file_list)
-    # print("remove_file_list:")
-    # print(remove_file_list)
-    # if len(revise_file_list) > 0:
-    #     print(revise_file_list)
-
-    
-    # 记录耗时
-    # begin_time = time.time()
-    for tmp_path in G_cfg["target_path"]:
-        # 进行替换
-        fileMgr.synchronize_file(G_cfg["source_path"], tmp_path, revise_file_list)
-        # 进行删除
-        fileMgr.synchronize_remove_file(G_cfg["source_path"], tmp_path, remove_file_list)
-    # end_time = time.time()
-    # print("synchronize_file consume:%f"%(end_time - begin_time))
-
-    # 屏蔽可以同步文件
-    # 发送热更
-    netMgr.send_hot_file(revise_file_list)
-    end_time = time.time()
-    if len(revise_file_list) > 0:
-        print(revise_file_list)
-        print("%s consume:%f"%(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), end_time - begin_time))

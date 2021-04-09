@@ -17,6 +17,17 @@ class FileObj():
         self.file_path = change_path_of_sys(file_path)
         self.mtime = os.stat(self.file_path).st_mtime
         
+## 获取函数
+# 获取文件名
+def get_file_name(path):
+    begin_idx = 0
+    if sysstr == "Windows":
+        begin_idx = path.rfind("\\") + 1
+    else:
+        begin_idx = path.rfind("/") + 1
+    end_idx = path.rfind(".")
+    return path[begin_idx:end_idx]
+        
 ## 检查函数
 # 文件是否相同  检查修改时间和文件大小
 def check_file_identical(file_path_1, file_path_2):
@@ -27,6 +38,8 @@ def check_file_identical(file_path_1, file_path_2):
     if os.path.getsize(file_path_1) != os.path.getsize(file_path_2):
         return False
     return True
+        
+        
         
 ## 修改函数  
 # 根据系统转换斜杆
