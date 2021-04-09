@@ -17,6 +17,18 @@ class FileObj():
         self.file_path = change_path_of_sys(file_path)
         self.mtime = os.stat(self.file_path).st_mtime
         
+## 检查函数
+# 文件是否相同  检查修改时间和文件大小
+def check_file_identical(file_path_1, file_path_2):
+    # 修改时间
+    if os.stat(file_path_1).st_mtime != os.stat(file_path_2).st_mtime:
+        return False
+    # 文件大小
+    if os.path.getsize(file_path_1) != os.path.getsize(file_path_2):
+        return False
+    return True
+        
+## 修改函数  
 # 根据系统转换斜杆
 def change_path_of_sys(path):
     if sysstr == "Windows":
@@ -34,3 +46,4 @@ def copy_file(file_obj, update_file_path):
     os.system(os_str)
     # 修改时间
     os.utime(update_file_path,(file_obj.mtime, file_obj.mtime))
+    
