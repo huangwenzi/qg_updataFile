@@ -13,6 +13,6 @@ main.py
 通知服务器热更文件
 hotFileMain.py
 
-异步目录同步    
-upByNetClientMain.py        需要同步的客户端
-upByNetSerMain.py           作为源文件的服务端
+异步目录同步  
+upByNetClientMain.py        需要同步的客户端  
+upByNetSerMain.py           作为源文件的服务端  
