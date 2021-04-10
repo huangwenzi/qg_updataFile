@@ -1,8 +1,4 @@
-import socket
-import sys
-import json
-import select
-import time            
+import socket            
 import copy
 
 # 套接字类

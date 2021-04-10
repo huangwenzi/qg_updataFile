@@ -1,5 +1,4 @@
 import os
-import time
 import platform
 import lib.file_lib as fileLibMd
 
