@@ -19,7 +19,7 @@ class FileMgr():
         # 操作系统
         self.sysstr = platform.system()
         self.pass_str = pass_str
-        self.update_file()
+        # self.update_file()
         
     ## 获取函数
     # 获取文件key

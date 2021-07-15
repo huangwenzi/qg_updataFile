@@ -8,6 +8,23 @@ import time
 enum_update_file = 1    # 更新文件
 enum_remove_file = 2    # 删除文件
 
+# 发送指定数量字节
+def send_data_len(c, send_len, data):
+    print("send_len:" + str(send_len))
+    # 使用send(),最大可发送的数据也是int类型最大上限的值,32位的系统,int类型最高好象是65535,64KB左右.
+    one_len = 2048
+    sen_idx = 0
+    while True:
+        if send_len - sen_idx > one_len:
+            c.send(data[sen_idx : sen_idx+one_len])
+            sen_idx += one_len
+        else:
+            c.send(data[sen_idx : ])
+            sen_idx += len(data[sen_idx : ])
+            print("send_len:" + str(sen_idx))
+            break
+        
+
 # 监听socket
 def listen_client(client_list, ser_socket):
     inputs = [ser_socket,]
@@ -59,15 +76,45 @@ class SvrNetMgr():
     def send_file_to_client(self, file_path, src_path):
         # 先把文件读取到内存
         file_str = ""
-        with open(src_path + file_path, 'r', encoding='UTF-8', errors='ignore') as f_in:
+        # with open(src_path + file_path, 'r', encoding='UTF-8', errors='ignore') as f_in:
+        #     file_str = f_in.read()
+        # send_obj = {"file_path":file_path, "file_str":file_str, "type": enum_update_file}
+        # send_str = json.dumps(send_obj)
+        # 二进制的格式打开文件
+        with open(src_path + file_path, 'rb') as f_in:
             file_str = f_in.read()
-        send_obj = {"file_path":file_path, "file_str":file_str, "type": enum_update_file}
+            # file_str = file_str.encode('utf-8', errors='ignore')
+        file_str_len = len(file_str)
+        send_obj = {"file_path":file_path, "type": enum_update_file, "len": file_str_len}
         send_str = json.dumps(send_obj)
 
         # 发送文件
         for tmp_client in list(self.client_list):
             try:
-                tmp_client.send(send_str.encode('utf-8', errors='ignore'))
+                print("tmp_client:")
+                print(tmp_client)
+                # 接收数据提示
+                begin_int = 1
+                send_byte = begin_int.to_bytes(4,byteorder='big', signed=False)
+                tmp_client.send(send_byte)
+                # 发送文件名和类型还有大小
+                # 下面这句不能少，不指定编码会失败
+                send_str = send_str.encode('utf-8', errors='ignore')
+                send_str_len = len(send_str)
+                send_byte = send_str_len.to_bytes(4,byteorder='big', signed=False)
+                tmp_client.send(send_byte)
+                tmp_client.send(send_str)
+                # 发送文件内容
+                # print(file_str)
+                print("send file_str")
+                print(send_obj)
+                send_data_len(tmp_client, file_str_len, file_str)
+                # tmp_client.send(file_str)
+                print("send file_str end")
+                # time.sleep(0.1)
+                
+                
+                # tmp_client.send(send_str.encode('utf-8', errors='ignore'))
             except :
                 self.client_list.remove(tmp_client)
                 
