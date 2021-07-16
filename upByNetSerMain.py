@@ -5,11 +5,11 @@ import lib.file_lib as fileLibMd
 
 # 刷新文件
 # 源目录
-src_path = "updateFile/old"
+src_path = "E:/huangwen/code/newServer/excel/"
 # 跳过检查的关键字
 pass_str = ["/log"]
 # 接收端地址
-hot_addr = ["192.168.31.239", 9000]
+hot_addr = ["192.168.30.81", 12000]
 # 刷新间隔
 time_interval = 5
 
@@ -30,24 +30,24 @@ svr_net_mgr = SvrNetMgr.SvrNetMgr(hot_addr[0], hot_addr[1])
 # 刷新文件并热更文件
 idx = 1
 begin_time = time.time()
-while True:
-    a = input(idx)
-    idx += 1
-    remove_list, add_list, update_list = file_mgr.update_file()
-    print("add_list:")
-    print(add_list)
-    # 删除文件
-    for tmp_update_file in remove_list:
-        svr_net_mgr.remove_file_to_client(tmp_update_file)
-    # 添加文件
-    for tmp_add_file in add_list:
-        svr_net_mgr.send_file_to_client(tmp_add_file, src_path)
-    # 修改文件
-    for tmp_update_file in update_list:
-        svr_net_mgr.send_file_to_client(tmp_update_file, src_path)
-    end_time = time.time()
-    print("consume:" + str(end_time - begin_time))
-    # time.sleep(time_interval)
+
+a = input(idx)
+idx += 1
+remove_list, add_list, update_list = file_mgr.update_file()
+print("add_list:")
+print(add_list)
+# 删除文件
+for tmp_update_file in remove_list:
+    svr_net_mgr.remove_file_to_client(tmp_update_file)
+# 添加文件
+for tmp_add_file in add_list:
+    svr_net_mgr.send_file_to_client(tmp_add_file, src_path)
+# 修改文件
+for tmp_update_file in update_list:
+    svr_net_mgr.send_file_to_client(tmp_update_file, src_path)
+end_time = time.time()
+print("consume:" + str(end_time - begin_time))
+# time.sleep(time_interval)
     
     
 

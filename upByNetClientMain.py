@@ -8,13 +8,12 @@ import lib.svr_net_mgr as SvrNetMgr
 import select
 
 # 监听目录
-tar_path = "updateFile/new"
-
+tar_path = "E:/huangwen/code/git/qg_updataFile/updateFile/new/"
 
 # 创建 socket 对象
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-host = "192.168.31.239"
-port = 9000
+host = "192.168.30.81"
+port = 12000
 s.connect((host, port))
 s.setblocking(False)
 
@@ -32,9 +31,9 @@ def wait_recv(s):
 def get_recv_len(s, recv_len):
     # 使用send(),最大可发送的数据也是int类型最大上限的值,32位的系统,int类型最高好象是65535,64KB左右.
     one_len = 2048
-    print("recv_len:" + str(recv_len))
     get_len = 0
     msg = b''
+    
     while True:
         if recv_len - get_len > one_len:
             get_len += one_len
@@ -42,10 +41,26 @@ def get_recv_len(s, recv_len):
         else:
             msg += s.recv(recv_len - get_len)
             get_len += (recv_len - get_len)
-            print("get_len:" + str(get_len))
             return msg
         wait_recv(s)
-        
+# 接受指定数量字节到文件
+def get_recv_len_to_file(s, recv_len, f_out):
+    # 使用send(),最大可发送的数据也是int类型最大上限的值,32位的系统,int类型最高好象是65535,64KB左右.
+    one_len = 2048
+    get_len = 0
+    msg = b''
+    
+    while True:
+        if recv_len - get_len > one_len:
+            get_len += one_len
+            msg = s.recv(one_len)
+            f_out.write(msg)
+        else:
+            msg = s.recv(recv_len - get_len)
+            get_len += (recv_len - get_len)
+            f_out.write(msg)
+            return msg
+        wait_recv(s)
         
     
 
@@ -63,8 +78,6 @@ while True:
             #     break
             
             infds = wait_recv(s)
-            print("infds:")
-            print(infds)
             # 先接受包大小
             msg = s.recv(4)
             if len(msg)==0:
@@ -82,17 +95,15 @@ while True:
                 msg = s.recv(send_str_len)
                 msg = msg.decode('utf-8')
                 recv_obj = json.loads(msg)
-                print("recv_obj:")
                 print(recv_obj)
                 # 接受文件数据
                 wait_recv(s)
                 
                 # msg = s.recv(recv_obj["len"])
-                msg = get_recv_len(s, recv_obj["len"])
+                # msg = get_recv_len(s, recv_obj["len"])
                 file_path = recv_obj["file_path"]
-                path = os.path.join(tar_path, file_path)
-                print("path:" + path)
-                print("type:" + str(recv_obj["type"]))
+                # path = os.path.join(tar_path, file_path)
+                path = tar_path + file_path
                 if recv_obj["type"] == SvrNetMgr.enum_remove_file:
                     os.remove(path)
                 elif recv_obj["type"] == SvrNetMgr.enum_update_file:
@@ -102,7 +113,9 @@ while True:
                         os.makedirs(dir_name)
                     with open(path, "wb") as f_out:
                         # msg = msg.decode('utf-8')
-                        f_out.write(msg)
+                        # f_out.write(msg)
+                        # 这效率也太高了，打开文件边读边写
+                        get_recv_len_to_file(s, recv_obj["len"], f_out)
             else:
                 print("丢弃脏包")
                 # 丢弃脏包

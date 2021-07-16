@@ -10,19 +10,19 @@ enum_remove_file = 2    # 删除文件
 
 # 发送指定数量字节
 def send_data_len(c, send_len, data):
-    print("send_len:" + str(send_len))
     # 使用send(),最大可发送的数据也是int类型最大上限的值,32位的系统,int类型最高好象是65535,64KB左右.
     one_len = 2048
     sen_idx = 0
-    while True:
-        if send_len - sen_idx > one_len:
-            c.send(data[sen_idx : sen_idx+one_len])
-            sen_idx += one_len
-        else:
-            c.send(data[sen_idx : ])
-            sen_idx += len(data[sen_idx : ])
-            print("send_len:" + str(sen_idx))
-            break
+    c.send(data)
+    # while True:
+    #     if send_len - sen_idx > one_len:
+    #         c.send(data[sen_idx : sen_idx+one_len])
+    #         sen_idx += one_len
+    #     else:
+    #         c.send(data[sen_idx : ])
+    #         sen_idx += len(data[sen_idx : ])
+    #         print("send_len:" + str(sen_idx))
+    #         break
         
 
 # 监听socket
@@ -91,8 +91,6 @@ class SvrNetMgr():
         # 发送文件
         for tmp_client in list(self.client_list):
             try:
-                print("tmp_client:")
-                print(tmp_client)
                 # 接收数据提示
                 begin_int = 1
                 send_byte = begin_int.to_bytes(4,byteorder='big', signed=False)
@@ -106,11 +104,9 @@ class SvrNetMgr():
                 tmp_client.send(send_str)
                 # 发送文件内容
                 # print(file_str)
-                print("send file_str")
                 print(send_obj)
                 send_data_len(tmp_client, file_str_len, file_str)
                 # tmp_client.send(file_str)
-                print("send file_str end")
                 # time.sleep(0.1)
                 
                 
