@@ -6,13 +6,14 @@ import json
 import lib.file_lib as fileLibMd
 import lib.svr_net_mgr as SvrNetMgr
 import select
+import time
 
 # 监听目录
-tar_path = "E:/huangwen/code/git/qg_updataFile/updateFile/new/"
+tar_path = "D:/game/mab"
 
 # 创建 socket 对象
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-host = "192.168.30.81"
+host = "192.168.31.239"
 port = 12000
 s.connect((host, port))
 s.setblocking(False)
@@ -35,6 +36,7 @@ def get_recv_len(s, recv_len):
     msg = b''
     
     while True:
+        wait_recv(s)
         if recv_len - get_len > one_len:
             get_len += one_len
             msg += s.recv(one_len)
@@ -42,25 +44,33 @@ def get_recv_len(s, recv_len):
             msg += s.recv(recv_len - get_len)
             get_len += (recv_len - get_len)
             return msg
-        wait_recv(s)
+       
 # 接受指定数量字节到文件
 def get_recv_len_to_file(s, recv_len, f_out):
     # 使用send(),最大可发送的数据也是int类型最大上限的值,32位的系统,int类型最高好象是65535,64KB左右.
-    one_len = 2048
+    one_len = 20480
     get_len = 0
     msg = b''
     
     while True:
+        wait_recv(s)
         if recv_len - get_len > one_len:
-            get_len += one_len
             msg = s.recv(one_len)
+            # 上面不一定能获取one_len的长度
+            get_len += len(msg)
             f_out.write(msg)
         else:
-            msg = s.recv(recv_len - get_len)
-            get_len += (recv_len - get_len)
+            recv_len_1 = recv_len - get_len
+            msg = s.recv(recv_len_1)
+            # 上面不一定能获取one_len的长度
+            msg_len = len(msg)
+            get_len += msg_len
             f_out.write(msg)
-            return msg
-        wait_recv(s)
+            if msg_len == recv_len_1:
+                return msg
+            else:
+                pass
+        
         
     
 
@@ -94,8 +104,8 @@ while True:
                 wait_recv(s)
                 msg = s.recv(send_str_len)
                 msg = msg.decode('utf-8')
-                recv_obj = json.loads(msg)
                 print(recv_obj)
+                recv_obj = json.loads(msg)
                 # 接受文件数据
                 wait_recv(s)
                 
